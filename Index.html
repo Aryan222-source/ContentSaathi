@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Content Saathi</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.3/dist/tailwind.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f2f0e6;
+            color: #333;
+        }
+        .retro-button {
+            background-color: #ff4081;
+            color: #fff;
+        }
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+    <main class="flex-grow container mx-auto p-4">
+        <h1 class="text-3xl text-center mb-6">Content Saathi</h1>
+        <form id="content-form" class="space-y-4">
+            <div class="flex flex-col">
+                <label for="content-type" class="mb-2">What do you want to generate?</label>
+                <select id="content-type" class="p-2 border rounded">
+                    <option value="Blog Post">Blog Post</option>
+                    <option value="Social Media Caption">Social Media Caption</option>
+                    <option value="Ad Copy">Ad Copy</option>
+                    <option value="Product Description">Product Description</option>
+                    <option value="Email Copy">Email Copy</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col">
+                <label for="topic-keywords" class="mb-2">Enter the main topic and keywords (optional)</label>
+                <input id="topic-keywords" type="text" class="p-2 border rounded" placeholder="e.g., Best marketing strategies for startups" />
+            </div>
+
+            <div class="flex flex-col">
+                <label for="target-audience" class="mb-2">Who is the content for?</label>
+                <input id="target-audience" type="text" class="p-2 border rounded" placeholder="e.g., entrepreneurs, fashion lovers" />
+            </div>
+
+            <div class="flex flex-col">
+                <label for="tone-style" class="mb-2">Choose a tone & style</label>
+                <select id="tone-style" class="p-2 border rounded">
+                    <option value="Professional">Professional</option>
+                    <option value="Casual">Casual</option>
+                    <option value="Persuasive">Persuasive</option>
+                    <option value="Humorous">Humorous</option>
+                    <option value="Storytelling">Storytelling</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col">
+                <label for="content-length" class="mb-2">Content Length</label>
+                <select id="content-length" class="p-2 border rounded">
+                    <option value="Short (50-100 words)">Short (50-100 words)</option>
+                    <option value="Medium (300-500 words)">Medium (300-500 words)</option>
+                    <option value="Long (1000+ words)">Long (1000+ words)</option>
+                </select>
+            </div>
+
+            <div class="flex flex-col">
+                <label for="platform-selection" class="mb-2">Platform Selection</label>
+                <input id="platform-selection" type="text" class="p-2 border rounded" placeholder="e.g., Instagram, Facebook, Google Ads" />
+            </div>
+
+            <div class="flex flex-col">
+                <label for="brand-name" class="mb-2">Brand Name & Unique Details</label>
+                <input id="brand-name" type="text" class="p-2 border rounded" placeholder="e.g., Your Business Name, specific slogans" />
+            </div>
+
+            <div class="flex flex-col">
+                <label for="competitor-links" class="mb-2">Competitor or Reference Links (Optional)</label>
+                <input id="competitor-links" type="text" class="p-2 border rounded" placeholder="Provide links to competitors" />
+            </div>
+
+            <div class="flex flex-col">
+                <label for="cta-preferences" class="mb-2">Call To Action (CTA) Preferences</label>
+                <input id="cta-preferences" type="text" class="p-2 border rounded" placeholder='e.g., "Shop Now", "Learn More"' />
+            </div>
+
+            <div class="flex flex-col">
+                <label for="additional-customization" class="mb-2">Additional Customization (Optional)</label>
+                <input id="additional-customization" type="text" class="p-2 border rounded" placeholder="e.g., emojis, hashtags" />
+            </div>
+
+            <button type="button" id="submit-btn" class="retro-button p-3 rounded-full text-center">Let's Get Creative! 🚀</button>
+        </form>
+
+        <section id="output" class="mt-8 p-4 border-t"></section>
+    </main>
+
+    <footer class="bg-gray-800 text-white p-4 mt-4 flex justify-center">
+        <a href="https://buildpicoapps.com" target="_blank">Made by Aryan Mehra</a>
+    </footer>
+
+    <script>
+        document.getElementById('submit-btn').addEventListener('click', () => {
+            const output = document.getElementById('output');
+            output.innerHTML = '<strong>Here is your generated content:</strong><br/>';
+
+            const contentType = document.getElementById('content-type').value;
+            const topicKeywords = document.getElementById('topic-keywords').value;
+            const targetAudience = document.getElementById('target-audience').value;
+            const toneStyle = document.getElementById('tone-style').value;
+            const contentLength = document.getElementById('content-length').value;
+            const platformSelection = document.getElementById('platform-selection').value;
+            const brandName = document.getElementById('brand-name').value;
+            const competitorLinks = document.getElementById('competitor-links').value;
+            const ctaPreferences = document.getElementById('cta-preferences').value;
+            const additionalCustomization = document.getElementById('additional-customization').value;
+
+            const substitutedPrompt = `Generate an engaging blog post on the topic of "${topicKeywords}" targeting ${targetAudience}. The tone should be ${toneStyle} with a ${contentLength} format. This blog post is intended for ${platformSelection} and should reflect the brand ${brandName}. Feel free to use any competitor or reference links provided and include a Call to Action of "${ctaPreferences}". Additional customizations can include emojis, hashtags, or specific formatting preferences.`;
+
+            const websocket = new WebSocket('wss://backend.buildpicoapps.com/ask_ai_streaming_v2');
+
+            websocket.addEventListener('open', () => {
+                websocket.send(
+                    JSON.stringify({
+                        appId: 'two-agent',
+                        prompt: substitutedPrompt,
+                    })
+                );
+            });
+
+            websocket.addEventListener('message', (event) => {
+                console.log(event.data);
+                output.innerHTML += `${event.data}`;
+            });
+
+            websocket.addEventListener('close', (event) => {
+                console.log("Connection closed", event.code, event.reason);
+                if (event.code != 1000) {
+                    alert("Oops, we ran into an error. Refresh the page and try again.");
+                }
+            });
+
+            websocket.addEventListener('error', (error) => {
+                console.log('WebSocket error', error);
+                alert("Oops, we ran into an error. Refresh the page and try again.");
+            });
+        });
+    </script>
+</body>
+</html>
